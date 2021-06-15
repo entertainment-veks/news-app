@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">NewsApp</string>
+    <string name="easter_egg">Powered by egorka</string>
+    <string name="new_icon_desc">New icon</string>
+</resources>
