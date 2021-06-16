@@ -8,26 +8,16 @@ const val USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/53
 const val REFERRER = "http://www.google.com"
 
 interface Repository {
-    fun getDataFromSite(url: String, callBack: CallBack<Document>)
+    fun getDataFromSite(url: String) : Document
 }
 
-class RepositoryImpl() : Repository {
+class RepositoryImpl : Repository {
 
-    override fun getDataFromSite(url: String, callBack: CallBack<Document>) {
-        AsyncGetDataFromUrl(callBack).execute(url)
-    }
-
-    class AsyncGetDataFromUrl(private val callBack: CallBack<Document>) : AsyncTask<String, Void, Document>() {
-        override fun doInBackground(vararg url: String?): Document {
-            return Jsoup
-                .connect(url[0])
-                .userAgent(USER_AGENT)
-                .referrer(REFERRER)
-                .get()
-        }
-
-        override fun onPostExecute(result: Document) {
-            callBack.onSuccess(result)
-        }
+    override fun getDataFromSite(url: String) : Document {
+        return Jsoup
+            .connect(url)
+            .userAgent(USER_AGENT)
+            .referrer(REFERRER)
+            .get()
     }
 }
