@@ -6,11 +6,11 @@ import org.jsoup.nodes.Document
 const val NEWS_URL = "https://dev.by/news/"
 
 interface NewsUseCase {
-    suspend fun execute(): List<AllNewsItem>
+    fun execute(): List<AllNewsItem>
 }
 
 class NewsUseCaseImpl(private val repository: Repository) : NewsUseCase {
-    override suspend fun execute(): List<AllNewsItem> {
+    override fun execute(): List<AllNewsItem> {
         val result = repository.getDataFromSite(NEWS_URL)
         val listItems = mutableListOf<AllNewsItem>()
 

@@ -8,12 +8,12 @@ const val USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/53
 const val REFERRER = "http://www.google.com"
 
 interface Repository {
-    suspend fun getDataFromSite(url: String) : Document
+    fun getDataFromSite(url: String) : Document
 }
 
 class RepositoryImpl : Repository {
 
-    override suspend fun getDataFromSite(url: String) : Document {
+    override fun getDataFromSite(url: String) : Document {
         return Jsoup
             .connect(url)
             .userAgent(USER_AGENT)
