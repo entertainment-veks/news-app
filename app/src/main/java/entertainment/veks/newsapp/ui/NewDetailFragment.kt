@@ -8,9 +8,9 @@ import android.webkit.WebView
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
-import entertainment.veks.newsapp.FragmentManagerActivity
+import entertainment.veks.newsapp.BASE_URL
 import entertainment.veks.newsapp.R
-import entertainment.veks.newsapp.item.AllNewsItem
+import entertainment.veks.newsapp.cache.NewsItem
 import java.util.*
 
 const val ITEMS_KEY: String = "all_items_key"
@@ -19,7 +19,7 @@ const val POSITION_KET: String = "position_key"
 class DetailVPFragment : Fragment() {
 
     companion object {
-        fun newInstance(allItems : List<AllNewsItem>, position : Int) : DetailVPFragment {
+        fun newInstance(allItems : List<NewsItem>, position : Int) : DetailVPFragment {
             val bundle = Bundle().apply {
                 this.putStringArrayList(ITEMS_KEY, allItems.map { it.url } as ArrayList<String>)
                 this.putInt(POSITION_KET, position)

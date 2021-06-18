@@ -10,12 +10,10 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import entertainment.veks.newsapp.FragmentManagerActivity
+import entertainment.veks.newsapp.BASE_URL
 import entertainment.veks.newsapp.R
-import entertainment.veks.newsapp.item.AllNewsItem
+import entertainment.veks.newsapp.cache.NewsItem
 import org.koin.android.ext.android.inject
-
-const val BASE_URL: String = "https://dev.by"
 
 class AllNewsFragment : Fragment() {
 
@@ -44,7 +42,7 @@ class AllNewsFragment : Fragment() {
         }
 
         viewModel.allNewsDataList.observe(viewLifecycleOwner, { quantityList ->
-            val adapterList = mutableListOf<AllNewsItem>()
+            val adapterList = mutableListOf<NewsItem>()
             adapterList.addAll(quantityList)
             adapter.insertData(adapterList)
         })
@@ -53,9 +51,9 @@ class AllNewsFragment : Fragment() {
     }
 
     inner class AllNewsAdapter : RecyclerView.Adapter<AllNewsAdapter.AllNewsViewHolder>() {
-        private var items: List<AllNewsItem> = listOf()
+        private var items: List<NewsItem> = listOf()
 
-        fun insertData(adapterList: MutableList<AllNewsItem>) {
+        fun insertData(adapterList: MutableList<NewsItem>) {
             items = adapterList
             notifyDataSetChanged()
         }

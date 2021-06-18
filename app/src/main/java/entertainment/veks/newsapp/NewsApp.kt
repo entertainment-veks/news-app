@@ -1,26 +1,41 @@
 package entertainment.veks.newsapp
 
 import android.app.Application
-import entertainment.veks.newsapp.data.NewsUseCase
-import entertainment.veks.newsapp.data.NewsUseCaseImpl
-import entertainment.veks.newsapp.data.Repository
-import entertainment.veks.newsapp.data.RepositoryImpl
+import androidx.room.Room
+import entertainment.veks.newsapp.cache.NewsDB
+import entertainment.veks.newsapp.cache.NewsDao
+import entertainment.veks.newsapp.data.*
 import entertainment.veks.newsapp.ui.AllNewsViewModel
 import org.koin.core.context.startKoin
 import org.koin.dsl.module
 
+lateinit var database : NewsDB
+
 class NewsApp : Application() {
     override fun onCreate() {
+        database = Room.databaseBuilder(
+            applicationContext, NewsDB::class.java, "news_cache"
+        ).build()
+
         startKoin {
             modules(appModule)
         }
 
         super.onCreate()
     }
-}
 
-val appModule = module {
-    single { AllNewsViewModel(get()) }
-    single { NewsUseCaseImpl(get()) as NewsUseCase }
-    single { RepositoryImpl() as Repository }
+    private val appModule = module {
+        single { AllNewsViewModel(get(), get(), get()) }
+
+        single { this@NewsApp as Application }
+
+        single { OnlineUseCase(get(), get()) }
+        single { OfflineUseCase(get()) }
+
+        single { GetDataFromSiteRepository() }
+        single { UpdateCacheRepository(get()) }
+        single { GetDataFromCacheRepository(get()) }
+
+        single { database.newsDao as NewsDao }
+    }
 }

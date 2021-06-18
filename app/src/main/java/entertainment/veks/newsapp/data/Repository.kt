@@ -1,23 +1,52 @@
 package entertainment.veks.newsapp.data
 
-import android.os.AsyncTask
+import entertainment.veks.newsapp.NEWS_URL
+import entertainment.veks.newsapp.REFERRER
+import entertainment.veks.newsapp.USER_AGENT
+import entertainment.veks.newsapp.cache.NewsDao
+import entertainment.veks.newsapp.cache.NewsItem
 import org.jsoup.Jsoup
-import org.jsoup.nodes.Document
 
-const val USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.77 Safari/537.36"
-const val REFERRER = "http://www.google.com"
-
-interface Repository {
-    fun getDataFromSite(url: String) : Document
+interface GetRepository {
+    fun execute() : List<NewsItem>
 }
 
-class RepositoryImpl : Repository {
+interface SetRepository {
+    fun execute(arg : List<NewsItem>)
+}
 
-    override fun getDataFromSite(url: String) : Document {
-        return Jsoup
-            .connect(url)
+class GetDataFromSiteRepository : GetRepository {
+    override fun execute() : List<NewsItem> {
+        val result = Jsoup
+            .connect(NEWS_URL)
             .userAgent(USER_AGENT)
             .referrer(REFERRER)
             .get()
+
+        val listItems = mutableListOf<NewsItem>()
+
+        result.select("div.card_media").forEach {
+            val currentItem = NewsItem()
+            currentItem.iconUrl = it.select("img.card__img").attr("src")
+            currentItem.url = it.select("div.card__body").select("a").attr("href")
+            currentItem.title = it.select("div.card__body").select("a").text()
+
+            listItems.add(currentItem)
+        }
+
+        return listItems
+    }
+}
+
+class UpdateCacheRepository(private val newsDao: NewsDao) : SetRepository {
+    override fun execute(arg : List<NewsItem>) {
+        newsDao.clearAll()
+        newsDao.insertAll(arg)
+    }
+}
+
+class GetDataFromCacheRepository(private val newsDao: NewsDao) : GetRepository {
+    override fun execute(): List<NewsItem> {
+        return newsDao.getAll()
     }
 }
