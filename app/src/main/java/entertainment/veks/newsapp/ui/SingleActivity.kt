@@ -1,11 +1,11 @@
-package entertainment.veks.newsapp
+package entertainment.veks.newsapp.ui
 
+import android.content.Context
 import android.os.Bundle
 import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
-import entertainment.veks.newsapp.item.AllNewsItem
-import entertainment.veks.newsapp.ui.AllNewsFragment
-import entertainment.veks.newsapp.ui.DetailVPFragment
+import entertainment.veks.newsapp.R
+import entertainment.veks.newsapp.cache.NewsItem
 
 class SingleActivity : AppCompatActivity(), FragmentManagerActivity {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -20,7 +20,7 @@ class SingleActivity : AppCompatActivity(), FragmentManagerActivity {
         return supportActionBar!!
     }
 
-    override fun showNewDetailFragment(allItems : List<AllNewsItem>, position : Int) {
+    override fun showNewDetailFragment(allItems : List<NewsItem>, position : Int) {
         supportFragmentManager.beginTransaction()
             .addToBackStack("main_stack")
             .replace(R.id.as_container, DetailVPFragment.newInstance(allItems, position)).commit()
@@ -29,5 +29,5 @@ class SingleActivity : AppCompatActivity(), FragmentManagerActivity {
 
 interface FragmentManagerActivity {
     fun getAppBar(): ActionBar
-    fun showNewDetailFragment(allItems : List<AllNewsItem>, position : Int)
+    fun showNewDetailFragment(allItems : List<NewsItem>, position : Int)
 }
