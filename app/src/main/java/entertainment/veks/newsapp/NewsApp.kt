@@ -29,12 +29,13 @@ class NewsApp : Application() {
 
         single { this@NewsApp as Application }
 
-        single { OnlineUseCase(get(), get()) }
-        single { OfflineUseCase(get()) }
+        single { OnlineGetDataUseCase(get(), get(), get()) }
+        single { OfflineGetDataUseCase(get()) }
 
         single { GetDataFromSiteRepository() }
-        single { UpdateCacheRepository(get()) }
-        single { GetDataFromCacheRepository(get()) }
+        single { AddCacheRepository(get()) }
+        single { GetCacheRepository(get()) }
+        single { ClearCacheRepository(get()) }
 
         single { database.newsDao as NewsDao }
     }

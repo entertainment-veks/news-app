@@ -3,34 +3,43 @@ package entertainment.veks.newsapp.ui
 import android.app.Application
 import android.content.Context
 import android.net.ConnectivityManager
-import android.net.NetworkCapabilities
-import android.util.Log
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.*
 import entertainment.veks.newsapp.cache.NewsItem
-import entertainment.veks.newsapp.data.OfflineUseCase
-import entertainment.veks.newsapp.data.OnlineUseCase
+import entertainment.veks.newsapp.data.OfflineGetDataUseCase
+import entertainment.veks.newsapp.data.OnlineGetDataUseCase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class AllNewsViewModel(
-    onlineUseCase: OnlineUseCase,
-    offlineUseCase: OfflineUseCase,
-    application: Application
+    private val onlineUseCase: OnlineGetDataUseCase,
+    private val offlineUseCase: OfflineGetDataUseCase,
+    private val application: Application
 ) : ViewModel() {
+
     private val _allNewsDataList = MutableLiveData<List<NewsItem>>()
     val allNewsDataList: LiveData<List<NewsItem>> = _allNewsDataList
 
-    init {
+    var currentPage = 0
+
+    init { downloadMore() }
+
+    fun downloadMore() {
+        currentPage++
+        loadData(currentPage)
+    }
+
+    private fun loadData(page : Int) {
         if (isOnline(application)) {
             viewModelScope.launch(Dispatchers.IO) {
-                _allNewsDataList.postValue(onlineUseCase.execute())
+                val result : MutableList<NewsItem> = _allNewsDataList.value?.toMutableList() ?: mutableListOf()
+                result.addAll(onlineUseCase.execute(page))
+                _allNewsDataList.postValue(result)
             }
         } else {
             Toast.makeText(application, "Cannot connect to the internet", Toast.LENGTH_LONG).show()
-            viewModelScope.launch(Dispatchers.IO) { //there multithreading is not required
-                _allNewsDataList.postValue(offlineUseCase.execute())
+            viewModelScope.launch(Dispatchers.IO) {
+                _allNewsDataList.postValue(offlineUseCase.execute(Unit))
             }
         }
     }
