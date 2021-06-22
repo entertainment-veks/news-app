@@ -1,26 +1,33 @@
 package entertainment.veks.newsapp.data
 
 import entertainment.veks.newsapp.cache.NewsItem
+import kotlinx.coroutines.internal.synchronized
 
-interface UseCase {
-    fun execute() : List<NewsItem>
+interface GetDataUseCase<T> {
+    fun execute(page : T) : List<NewsItem>
 }
 
-class OnlineUseCase(
-    private val updateCacheRepository: UpdateCacheRepository,
+class OnlineGetDataUseCase(
+    private val clearCacheRepository: ClearCacheRepository,
+    private val addCacheRepository: AddCacheRepository,
     private val getDataFromSiteRepository: GetDataFromSiteRepository
-) : UseCase {
-    override fun execute(): List<NewsItem> {
-        val result = getDataFromSiteRepository.execute()
-        updateCacheRepository.execute(result)
-        return result
+) : GetDataUseCase<Int> {
+    override fun execute(page : Int): List<NewsItem> {
+        if (page <= 1) {
+            clearCacheRepository.execute(Unit)
+        }
+
+        val dataFromCurrentPage = getDataFromSiteRepository.execute(page)
+        addCacheRepository.execute(dataFromCurrentPage)
+
+        synchronized(this) {
+            return dataFromCurrentPage
+        }
     }
 }
 
-class OfflineUseCase(
-    private val getDataFromCacheRepository: GetDataFromCacheRepository
-) : UseCase {
-    override fun execute(): List<NewsItem> {
-        return getDataFromCacheRepository.execute()
-    }
+class OfflineGetDataUseCase(
+    private val getCacheRepository: GetCacheRepository
+) : GetDataUseCase<Unit> {
+    override fun execute(page : Unit): List<NewsItem> = getCacheRepository.execute(Unit)
 }

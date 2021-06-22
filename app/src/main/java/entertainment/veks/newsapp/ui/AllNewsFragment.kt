@@ -12,14 +12,16 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import entertainment.veks.newsapp.BASE_URL
 import entertainment.veks.newsapp.R
+import entertainment.veks.newsapp.VISIBLE_THRESHOLD
 import entertainment.veks.newsapp.cache.NewsItem
 import org.koin.android.ext.android.inject
 
 class AllNewsFragment : Fragment() {
 
-    private val viewModel : AllNewsViewModel by inject()
+    private val viewModel: AllNewsViewModel by inject()
 
     private val adapter = AllNewsAdapter()
+    private val lm = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
 
     companion object {
         fun newInstance() = AllNewsFragment()
@@ -38,13 +40,12 @@ class AllNewsFragment : Fragment() {
 
         v.findViewById<RecyclerView>(R.id.fan_recycler).apply {
             adapter = this@AllNewsFragment.adapter
-            layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
+            layoutManager = lm
+            setOnScrollChangeListener(AllNewsListener(lm))
         }
 
         viewModel.allNewsDataList.observe(viewLifecycleOwner, { quantityList ->
-            val adapterList = mutableListOf<NewsItem>()
-            adapterList.addAll(quantityList)
-            adapter.insertData(adapterList)
+            adapter.insertData(quantityList)
         })
 
         return v
@@ -53,9 +54,10 @@ class AllNewsFragment : Fragment() {
     inner class AllNewsAdapter : RecyclerView.Adapter<AllNewsAdapter.AllNewsViewHolder>() {
         private var items: List<NewsItem> = listOf()
 
-        fun insertData(adapterList: MutableList<NewsItem>) {
+        fun insertData(adapterList: List<NewsItem>) {
+            val oldLength = items.size
             items = adapterList
-            notifyDataSetChanged()
+            notifyItemRangeChanged(oldLength + 1, adapterList.size - oldLength)
         }
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AllNewsViewHolder {
@@ -82,6 +84,16 @@ class AllNewsFragment : Fragment() {
             val title: TextView = itemView.findViewById(R.id.in_title)
             val icon: ImageView = itemView.findViewById(R.id.in_icon)
             val item: View = itemView
+        }
+    }
+
+    inner class AllNewsListener(private val lm: LinearLayoutManager) :
+        View.OnScrollChangeListener {
+
+        override fun onScrollChange(v: View?, x: Int, y: Int, oldX: Int, oldY: Int) {
+            if (lm.findFirstVisibleItemPosition() + lm.childCount >= lm.itemCount) {
+                viewModel.downloadMore()
+            }
         }
     }
 }

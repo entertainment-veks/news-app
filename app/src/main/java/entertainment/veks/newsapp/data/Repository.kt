@@ -7,18 +7,18 @@ import entertainment.veks.newsapp.cache.NewsDao
 import entertainment.veks.newsapp.cache.NewsItem
 import org.jsoup.Jsoup
 
-interface GetRepository {
-    fun execute() : List<NewsItem>
+interface Repository<I, O> {
+    fun execute(input : I) : O
 }
 
-interface SetRepository {
-    fun execute(arg : List<NewsItem>)
-}
+class GetDataFromSiteRepository : Repository<Int, List<NewsItem>> {
+    override fun execute(page : Int) : List<NewsItem> {
+        var url = NEWS_URL
 
-class GetDataFromSiteRepository : GetRepository {
-    override fun execute() : List<NewsItem> {
+        if (page > 1) { url = "$url?page=$page" }
+
         val result = Jsoup
-            .connect(NEWS_URL)
+            .connect(url)
             .userAgent(USER_AGENT)
             .referrer(REFERRER)
             .get()
@@ -38,15 +38,20 @@ class GetDataFromSiteRepository : GetRepository {
     }
 }
 
-class UpdateCacheRepository(private val newsDao: NewsDao) : SetRepository {
-    override fun execute(arg : List<NewsItem>) {
-        newsDao.clearAll()
-        newsDao.insertAll(arg)
+class AddCacheRepository(private val newsDao: NewsDao) : Repository<List<NewsItem>, Unit> {
+    override fun execute(input : List<NewsItem>) {
+        newsDao.insertAll(input)
     }
 }
 
-class GetDataFromCacheRepository(private val newsDao: NewsDao) : GetRepository {
-    override fun execute(): List<NewsItem> {
+class GetCacheRepository(private val newsDao: NewsDao) : Repository<Unit, List<NewsItem>> {
+    override fun execute(input: Unit): List<NewsItem> {
         return newsDao.getAll()
+    }
+}
+
+class ClearCacheRepository(private val newsDao: NewsDao) : Repository<Unit, Unit> {
+    override fun execute(input: Unit) {
+        newsDao.clearAll()
     }
 }
