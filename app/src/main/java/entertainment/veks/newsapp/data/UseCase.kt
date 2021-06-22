@@ -19,10 +19,7 @@ class OnlineGetDataUseCase(
 
         val dataFromCurrentPage = getDataFromSiteRepository.execute(page)
         addCacheRepository.execute(dataFromCurrentPage)
-
-        synchronized(this) {
-            return dataFromCurrentPage
-        }
+        return dataFromCurrentPage
     }
 }
 

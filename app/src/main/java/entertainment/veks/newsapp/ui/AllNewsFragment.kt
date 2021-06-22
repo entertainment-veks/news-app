@@ -12,7 +12,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import entertainment.veks.newsapp.BASE_URL
 import entertainment.veks.newsapp.R
-import entertainment.veks.newsapp.VISIBLE_THRESHOLD
 import entertainment.veks.newsapp.cache.NewsItem
 import org.koin.android.ext.android.inject
 
@@ -22,6 +21,8 @@ class AllNewsFragment : Fragment() {
 
     private val adapter = AllNewsAdapter()
     private val lm = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
+
+    private var loading = false
 
     companion object {
         fun newInstance() = AllNewsFragment()
@@ -45,6 +46,7 @@ class AllNewsFragment : Fragment() {
         }
 
         viewModel.allNewsDataList.observe(viewLifecycleOwner, { quantityList ->
+            loading = false
             adapter.insertData(quantityList)
         })
 
@@ -92,7 +94,10 @@ class AllNewsFragment : Fragment() {
 
         override fun onScrollChange(v: View?, x: Int, y: Int, oldX: Int, oldY: Int) {
             if (lm.findFirstVisibleItemPosition() + lm.childCount >= lm.itemCount) {
-                viewModel.downloadMore()
+                if (!loading) {
+                    loading = true
+                    viewModel.downloadMore()
+                }
             }
         }
     }
