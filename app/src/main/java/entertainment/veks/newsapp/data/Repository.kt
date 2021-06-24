@@ -11,7 +11,7 @@ interface Repository<I, O> {
     fun execute(input : I) : O
 }
 
-class GetDataFromSiteRepository : Repository<Int, List<NewsItem>> {
+open class GetDataFromSiteRepository : Repository<Int, List<NewsItem>> {
     override fun execute(page : Int) : List<NewsItem> {
         var url = NEWS_URL
 
@@ -38,19 +38,19 @@ class GetDataFromSiteRepository : Repository<Int, List<NewsItem>> {
     }
 }
 
-class AddCacheRepository(private val newsDao: NewsDao) : Repository<List<NewsItem>, Unit> {
+open class AddCacheRepository(private val newsDao: NewsDao) : Repository<List<NewsItem>, Unit> {
     override fun execute(input : List<NewsItem>) {
         newsDao.insertAll(input)
     }
 }
 
-class GetCacheRepository(private val newsDao: NewsDao) : Repository<Unit, List<NewsItem>> {
+open class GetCacheRepository(private val newsDao: NewsDao) : Repository<Unit, List<NewsItem>> {
     override fun execute(input: Unit): List<NewsItem> {
         return newsDao.getAll()
     }
 }
 
-class ClearCacheRepository(private val newsDao: NewsDao) : Repository<Unit, Unit> {
+open class ClearCacheRepository(private val newsDao: NewsDao) : Repository<Unit, Unit> {
     override fun execute(input: Unit) {
         newsDao.clearAll()
     }
