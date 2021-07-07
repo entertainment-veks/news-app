@@ -22,20 +22,9 @@ class AllNewsViewModel(
 
     var currentPage = 0
 
-    init { downloadMore() }
-
-    fun downloadMore() {
-        currentPage++
-        loadData(currentPage)
-    }
-
-    private fun loadData(page : Int) {
+    init {
         if (isOnline(application)) {
-            viewModelScope.launch(Dispatchers.IO) {
-                val result : MutableList<NewsItem> = _allNewsDataList.value?.toMutableList() ?: mutableListOf()
-                result.addAll(onlineUseCase.execute(page))
-                _allNewsDataList.postValue(result)
-            }
+            downloadMore()
         } else {
             Toast.makeText(application, "Cannot connect to the internet", Toast.LENGTH_LONG).show()
             viewModelScope.launch(Dispatchers.IO) {
@@ -44,8 +33,25 @@ class AllNewsViewModel(
         }
     }
 
-    private fun isOnline(application: Application) : Boolean {
-        val connectivityManager = application.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+    fun downloadMore() {
+        if (isOnline(application)) {
+            currentPage++
+            loadData(currentPage)
+        }
+    }
+
+    private fun loadData(page: Int) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val result: MutableList<NewsItem> =
+                _allNewsDataList.value?.toMutableList() ?: mutableListOf()
+            result.addAll(onlineUseCase.execute(page))
+            _allNewsDataList.postValue(result)
+        }
+    }
+
+    private fun isOnline(application: Application): Boolean {
+        val connectivityManager =
+            application.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         val networkInfo = connectivityManager.activeNetworkInfo
         return networkInfo != null && networkInfo.isConnected
     }

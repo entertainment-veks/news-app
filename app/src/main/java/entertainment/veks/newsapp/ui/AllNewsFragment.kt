@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -24,6 +25,8 @@ class AllNewsFragment : Fragment() {
 
     private var loading = false
 
+    private lateinit var progressBar : ProgressBar
+
     companion object {
         fun newInstance() = AllNewsFragment()
     }
@@ -39,6 +42,8 @@ class AllNewsFragment : Fragment() {
 
         val v = inflater.inflate(R.layout.fragment_all_news, container, false)
 
+        progressBar = v.findViewById(R.id.fan_progress_bar)
+
         v.findViewById<RecyclerView>(R.id.fan_recycler).apply {
             adapter = this@AllNewsFragment.adapter
             layoutManager = lm
@@ -47,6 +52,7 @@ class AllNewsFragment : Fragment() {
 
         viewModel.allNewsDataList.observe(viewLifecycleOwner, { quantityList ->
             loading = false
+            progressBar.visibility = View.GONE
             adapter.insertData(quantityList)
         })
 
@@ -96,6 +102,7 @@ class AllNewsFragment : Fragment() {
             if (lm.findFirstVisibleItemPosition() + lm.childCount >= lm.itemCount) {
                 if (!loading) {
                     loading = true
+                    progressBar.visibility = View.VISIBLE
                     viewModel.downloadMore()
                 }
             }

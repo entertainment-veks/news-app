@@ -32,10 +32,10 @@ class NewsApp : Application() {
         single { OnlineGetDataUseCase(get(), get(), get()) }
         single { OfflineGetDataUseCase(get()) }
 
-        single { GetDataFromSiteRepository() }
-        single { AddCacheRepository(get()) }
-        single { GetCacheRepository(get()) }
         single { ClearCacheRepository(get()) }
+        single { AddCacheRepository(get()) }
+        single { GetDataFromSiteRepository() }
+        single { GetCacheRepository(get()) }
 
         single { database.newsDao as NewsDao }
     }
